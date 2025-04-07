@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,7 +34,11 @@ type UpdateScheduleRequest struct {
 }
 
 // Simple task that logs to console
-func simpleTask(ctx context.Context, params blueberry.TaskParams, logger *blueberry.Logger) error {
+func simpleTask(tctx *blueberry.TaskContext) error {
+	_ = tctx.GetContext() // To get context.Context
+	logger := tctx.GetLogger()
+	params := tctx.GetParams()
+
 	msg := fmt.Sprintf("Executing simple task with params: %v at %v", params, time.Now())
 	return logger.Info(msg)
 }
