@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -21,7 +20,10 @@ var (
 	})
 )
 
-func task1(ctx context.Context, params rasberry.TaskParams, logger *rasberry.Logger) error {
+func task1(tctx *rasberry.TaskContext) error {
+	ctx := tctx.GetContext()
+	logger := tctx.GetLogger()
+	params := tctx.GetParams()
 	_ = logger.Info(fmt.Sprintf("The params are: %v", params))
 
 	if err := logger.Info("Starting Task 1"); err != nil {

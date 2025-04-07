@@ -34,7 +34,7 @@ Below is an example script to demonstrate how to use BlueBerry. You can find the
 
 #### 1. Define Task Functions
 
-A **task** is a function that will be executed by the scheduler. The function should accept a context, parameters, and a logger.
+A **task** is a function that will be executed by the scheduler. The function should accept a pointer to TaskContext as a parameter which contains: context, parameters, and a logger.
 
 ```go
 var (
@@ -45,7 +45,12 @@ var (
 	})
 )
 
-func task1(ctx context.Context, params blueberry.TaskParams, logger *blueberry.Logger) error {
+
+func task1(tctx *rasberry.TaskContext) error {
+	ctx := tctx.GetContext()
+	logger := tctx.GetLogger()
+	params := tctx.GetParams()
+
 	_ = logger.Info(fmt.Sprintf("The params are: %v", params))
 
 	if err := logger.Info("Starting Task 1"); err != nil {

@@ -20,7 +20,7 @@ type ScheduleInfo struct {
 
 type Task struct {
 	name      string
-	taskFunc  func(context.Context, TaskParams, *Logger) error
+	taskFunc  func(*TaskContext) error
 	blueBerry *BlueBerry
 	schema    TaskSchema
 }
@@ -244,7 +244,11 @@ func (t *Task) ExecuteNow(params TaskParams) (int, error) {
 		defer t.blueBerry.executing.Delete(taskRun.ID)
 
 		logger := &Logger{taskRun: taskRun, db: t.blueBerry.db}
-		err = t.taskFunc(ctx, params, logger)
+		err = t.taskFunc(&TaskContext{
+			ctx:    ctx,
+			params: params,
+			logger: logger,
+		})
 		if err != nil {
 			taskRun.Status = "failed"
 			_ = logger.Error("Task failed due to: " + err.Error())

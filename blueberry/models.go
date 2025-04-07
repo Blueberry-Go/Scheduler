@@ -5,7 +5,8 @@ import (
 	"time"
 )
 
-type TaskFunc func(context.Context, TaskParams, *Logger) error
+
+type TaskFunc func(*TaskContext) error
 
 type TaskRun struct {
 	ID        int                    `json:"id"`
