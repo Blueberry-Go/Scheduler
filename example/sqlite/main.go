@@ -88,7 +88,7 @@ func main() {
 		"param1": "value1",
 		"param2": 1,
 		"param3": true,
-	}, "@every 1m")
+	}, "@every 1s")
 
 	if err != nil {
 		log.Fatalf("Failed to register schedule: %v", err)
@@ -107,7 +107,7 @@ func main() {
 	}
 
 	// You can also remove the schedule dynamically.
-	tsk1.DeleteSchedule(sc.EntryID) // Remove the registered schedule
+	// tsk1.DeleteSchedule(sc.EntryID) // Remove the registered schedule
 
 	// Handle system signals for graceful shutdown
 	sigChan := make(chan os.Signal, 1)
