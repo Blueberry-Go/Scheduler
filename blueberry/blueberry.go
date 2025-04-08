@@ -8,6 +8,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/robfig/cron/v3"
 )
 
@@ -39,14 +42,56 @@ type BlueBerry struct {
 	apiKeysMux       sync.RWMutex
 	usersMux         sync.RWMutex
 	webOnlyPasswords map[string]string
+
+	promRegistry *prometheus.Registry // Central metrics registry namespaced for given blueberry instance
 }
 
 func NewBlueBerryInstance(db DB) *BlueBerry {
+	// Prometheus Setup
+	registry := prometheus.NewRegistry()
+	regFactory := promauto.With(registry)
+
+	// Initialize and Register Built-in Metrics
+	tasksRegisteredGauge = regFactory.NewGauge(prometheus.GaugeOpts{
+		Namespace: promNamespace,
+		Name:      "tasks_registered_total",
+		Help:      "Total number of unique tasks registered.",
+	})
+
+	schedulesRegisteredGaugeVec = regFactory.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: promNamespace,
+		Name:      "schedules_registered_total",
+		Help:      "Total number of active schedules registered, partitioned by task.",
+	}, []string{labelTaskName}) // Labelled by task name
+
+	tasksExecutingGauge = regFactory.NewGauge(prometheus.GaugeOpts{
+		Namespace: promNamespace,
+		Name:      "tasks_executing_current",
+		Help:      "Number of tasks currently executing (concurrent processes/goroutines started by ExecuteNow).",
+	})
+
+	taskExecutionTotalCounter = regFactory.NewCounterVec(prometheus.CounterOpts{
+		Namespace: promNamespace,
+		Name:      "task_executions_total",
+		Help:      "Total number of task executions, partitioned by task and status (completed, failed, cancelled).",
+	}, []string{labelTaskName, labelStatus}) // Labelled by task name and final status
+
+	taskExecutionDurationHistogram = regFactory.NewHistogramVec(prometheus.HistogramOpts{
+		Namespace: promNamespace,
+		Name:      "task_execution_duration_seconds",
+		Help:      "Histogram of task execution duration in seconds, partitioned by task and status.",
+		Buckets:   prometheus.ExponentialBuckets(0.1, 2, 25),
+	}, []string{labelTaskName, labelStatus}) // Labelled by task name and final status
+
+	registry.MustRegister(collectors.NewGoCollector())
+	registry.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
+
 	return &BlueBerry{
 		db:               db,
 		cron:             cron.New(),
 		apiKeys:          make(map[string]string),
 		webOnlyPasswords: make(map[string]string),
+		promRegistry:     registry,
 	}
 }
 
@@ -69,6 +114,9 @@ func (r *BlueBerry) RegisterTask(taskName string, taskFunc TaskFunc, schema Task
 
 	r.taskMux.Lock()
 	defer r.taskMux.Unlock()
+
+	_, loaded := r.tasks.Load(taskName)
+
 	task := &Task{
 		name:      taskName,
 		taskFunc:  taskFunc,
@@ -76,6 +124,15 @@ func (r *BlueBerry) RegisterTask(taskName string, taskFunc TaskFunc, schema Task
 		blueBerry: r,
 	}
 	r.tasks.Store(taskName, task)
+
+	if !loaded {
+		// Only increment if it's a new task registration
+		tasksRegisteredGauge.Inc()
+		// Initialize schedule count for this task to 0
+		// This ensures the label combination exists even before schedules are added
+		schedulesRegisteredGaugeVec.WithLabelValues(taskName).Set(0)
+	}
+
 	return task, nil
 }
 
@@ -196,6 +253,8 @@ func (t *Task) RegisterSchedule(params TaskParams, schedule string) (ScheduleInf
 	}
 	t.blueBerry.storeSchedule(t.name, scheduleInfo)
 
+	schedulesRegisteredGaugeVec.WithLabelValues(t.name).Inc()
+
 	return scheduleInfo, nil
 }
 
@@ -207,15 +266,24 @@ func (t *Task) DeleteSchedule(entryID cron.EntryID) {
 	t.blueBerry.cron.Remove(entryID)
 
 	// Remove from the local schedule database (So that it's not shown in web client)
+	scheduleRemoved := false
+
 	if schedules, ok := t.blueBerry.schedules.Load(t.name); ok {
 		updatedSchedules := make([]ScheduleInfo, 0)
 		for _, schedule := range schedules.([]ScheduleInfo) {
 			if schedule.EntryID != entryID {
 				updatedSchedules = append(updatedSchedules, schedule)
+			} else {
+				scheduleRemoved = true
 			}
 		}
 		t.blueBerry.schedules.Store(t.name, updatedSchedules)
 	}
+
+	if scheduleRemoved {
+		schedulesRegisteredGaugeVec.WithLabelValues(t.name).Dec()
+	}
+
 }
 
 func (t *Task) ExecuteNow(params TaskParams) (int, error) {
@@ -236,7 +304,19 @@ func (t *Task) ExecuteNow(params TaskParams) (int, error) {
 		return 0, err
 	}
 
+	tasksExecutingGauge.Inc()
+	execStart := time.Now() // Record start time for duration calculation
+
 	go func(taskRun *TaskRun, params TaskParams) {
+
+		defer func() {
+			tasksExecutingGauge.Dec()
+			duration := time.Since(execStart).Seconds()
+			status := taskRun.Status
+			taskExecutionTotalCounter.WithLabelValues(t.name, status).Inc()
+			taskExecutionDurationHistogram.WithLabelValues(t.name, status).Observe(duration)
+		}()
+
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
