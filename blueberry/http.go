@@ -1,11 +1,13 @@
 package blueberry
 
 import (
+	"fmt"
 	"net/http"
 
 	_ "github.com/ersauravadhikari/blueberry-go/docs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -13,6 +15,7 @@ type Config struct {
 	WebUIPath       string // base path for web UI routes (e.g., "/bb_admin")
 	APIPath         string // base path for API routes (e.g., "/bb_api")
 	HealthCheckPath string // base path for Healthcheck endpoint (e.g. "/healthcheck")
+	MetricsPath     string // base path for Prometheus Metrics endpoint
 }
 
 // setupCore initializes the Echo instance with common middleware
@@ -41,6 +44,7 @@ func (r *BlueBerry) GetEcho(cfg *Config) (*echo.Echo, error) {
 	webPath := ""
 	apiPath := "/api"
 	healthCheckPath := "/health"
+	metricsPath := "/metrics" // Default metrics path
 
 	if cfg != nil {
 		if cfg.WebUIPath != "" {
@@ -51,6 +55,9 @@ func (r *BlueBerry) GetEcho(cfg *Config) (*echo.Echo, error) {
 		}
 		if cfg.HealthCheckPath != "" {
 			healthCheckPath = cfg.HealthCheckPath
+		}
+		if cfg.MetricsPath != "" {
+			metricsPath = cfg.MetricsPath
 		}
 	}
 
@@ -72,6 +79,14 @@ func (r *BlueBerry) GetEcho(cfg *Config) (*echo.Echo, error) {
 			"by":     "blueberry-auto-check",
 		})
 	})
+
+	fmt.Printf("Registering Prometheus metrics endpoint at: %s\n", metricsPath)
+	e.GET(metricsPath, echo.WrapHandler(promhttp.HandlerFor(
+		r.promRegistry,
+		promhttp.HandlerOpts{
+			ErrorHandling: promhttp.ContinueOnError,
+		},
+	)))
 
 	return e, nil
 }
