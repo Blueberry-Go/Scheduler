@@ -1,4 +1,4 @@
-module github.com/blueberry-go/scheduler
+module github.com/blueberry-go/scheduler/core
 
 go 1.22.3
 
