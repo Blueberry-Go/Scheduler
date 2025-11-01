@@ -3,7 +3,8 @@ package store
 import (
 	"context"
 	"encoding/json"
-	blueberry "github.com/ersauravadhikari/blueberry-go/blueberry"
+
+	blueberry "github.com/blueberry-go/scheduler/blueberry"
 	"github.com/jackc/pgx/v4"
 )
 

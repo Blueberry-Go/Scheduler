@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	blueberry "github.com/ersauravadhikari/blueberry-go/blueberry"
+
+	blueberry "github.com/blueberry-go/scheduler/blueberry"
 	_ "github.com/mattn/go-sqlite3"
 )
 

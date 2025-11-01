@@ -5,10 +5,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/ersauravadhikari/blueberry-go/blueberry"
 	"os"
 	"path/filepath"
 	"sync"
+
+	blueberry "github.com/blueberry-go/scheduler/blueberry"
 )
 
 type Metadata struct {

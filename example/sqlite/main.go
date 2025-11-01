@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	rasberry "github.com/ersauravadhikari/blueberry-go/blueberry"
-	"github.com/ersauravadhikari/blueberry-go/blueberry/store"
+	rasberry "github.com/blueberry-go/scheduler/blueberry"
+	"github.com/blueberry-go/scheduler/blueberry/store"
 )
 
 var (

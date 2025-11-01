@@ -10,8 +10,8 @@ import (
 	"syscall"
 	"time"
 
-	blueberry "github.com/ersauravadhikari/blueberry-go/blueberry"
-	"github.com/ersauravadhikari/blueberry-go/blueberry/store"
+	blueberry "github.com/blueberry-go/scheduler/blueberry"
+	"github.com/blueberry-go/scheduler/blueberry/store"
 	"github.com/labstack/echo/v4"
 	"github.com/robfig/cron/v3"
 )
