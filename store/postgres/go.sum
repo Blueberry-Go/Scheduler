@@ -4,8 +4,8 @@ github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6Xge
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=
 github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6rlkpw=
-github.com/blueberry-go/scheduler v0.5.0 h1:3FwYuWqJQghzs+H96SZfskafSJIWD2E7UcSGId7IFSU=
-github.com/blueberry-go/scheduler v0.5.0/go.mod h1:rW/r4/wC+hhyXQqMi874m2S1yyTcXe9k6ACpGyJTXT0=
+github.com/blueberry-go/scheduler v0.5.2 h1:uMkdr2uD5qAt9+mwogDmZ5dMXmVizFGJh4nrFm+a01E=
+github.com/blueberry-go/scheduler v0.5.2/go.mod h1:1W6QeCbZUJVkWM43MkwSqaWJKNyZSbimO/afxmcfgMk=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=

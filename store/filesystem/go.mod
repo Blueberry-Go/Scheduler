@@ -2,7 +2,7 @@ module github.com/blueberry-go/scheduler/store/filesystem
 
 go 1.22.3
 
-require github.com/blueberry-go/scheduler v0.5.0
+require github.com/blueberry-go/scheduler/core v0.6.0
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

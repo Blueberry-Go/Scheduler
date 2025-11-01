@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	blueberry "github.com/blueberry-go/scheduler/blueberry"
+	blueberry "github.com/blueberry-go/scheduler/core"
 )
 
 type Metadata struct {

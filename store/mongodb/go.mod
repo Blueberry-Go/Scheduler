@@ -3,7 +3,7 @@ module github.com/blueberry-go/scheduler/store/mongodb
 go 1.22.3
 
 require (
-	github.com/blueberry-go/scheduler v0.5.0
+	github.com/blueberry-go/scheduler/core v0.6.0
 	go.mongodb.org/mongo-driver v1.17.6
 )
 
