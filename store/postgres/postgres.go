@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	blueberry "github.com/blueberry-go/scheduler/blueberry"
+	blueberry "github.com/blueberry-go/scheduler/core"
 	"github.com/jackc/pgx/v4"
 )
 
