@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
-	blueberry "github.com/blueberry-go/scheduler/core"
+	stypes "github.com/blueberry-go/scheduler/types"
 	"github.com/jackc/pgx/v4"
 )
 
@@ -51,7 +51,7 @@ func (db *PostgresDB) migrate() error {
 	return err
 }
 
-func (db *PostgresDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRun) error {
+func (db *PostgresDB) SaveTaskRun(ctx context.Context, taskRun *stypes.TaskRun) error {
 	params, _ := json.Marshal(taskRun.Params)
 	if taskRun.ID == 0 {
 		return db.conn.QueryRow(ctx,
@@ -65,22 +65,22 @@ func (db *PostgresDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRu
 	}
 }
 
-func (db *PostgresDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry.TaskRunLog) error {
+func (db *PostgresDB) SaveTaskRunLog(ctx context.Context, taskRunLog *stypes.TaskRunLog) error {
 	return db.conn.QueryRow(ctx,
 		"INSERT INTO task_run_logs (task_run_id, timestamp, level, message) VALUES ($1, $2, $3, $4) RETURNING id",
 		taskRunLog.TaskRunID, taskRunLog.Timestamp, taskRunLog.Level, taskRunLog.Message).Scan(&taskRunLog.ID)
 }
 
-func (db *PostgresDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, error) {
+func (db *PostgresDB) GetTaskRuns(ctx context.Context) ([]stypes.TaskRun, error) {
 	rows, err := db.conn.Query(ctx, "SELECT id, task_name, start_time, end_time, params, status FROM task_runs")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for rows.Next() {
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		var params []byte
 		if err := rows.Scan(&taskRun.ID, &taskRun.TaskName, &taskRun.StartTime, &taskRun.EndTime, &params, &taskRun.Status); err != nil {
 			return nil, err
@@ -91,7 +91,7 @@ func (db *PostgresDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, err
 	return taskRuns, nil
 }
 
-func (db *PostgresDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]blueberry.TaskRun, error) {
+func (db *PostgresDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]stypes.TaskRun, error) {
 	offset := (page - 1) * limit
 	rows, err := db.conn.Query(ctx, "SELECT id, task_name, start_time, end_time, params, status FROM task_runs WHERE task_name = $1 ORDER BY start_time DESC LIMIT $2 OFFSET $3", name, limit, offset)
 	if err != nil {
@@ -99,9 +99,9 @@ func (db *PostgresDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name 
 	}
 	defer rows.Close()
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for rows.Next() {
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		var params []byte
 		if err := rows.Scan(&taskRun.ID, &taskRun.TaskName, &taskRun.StartTime, &taskRun.EndTime, &params, &taskRun.Status); err != nil {
 			return nil, err
@@ -121,16 +121,16 @@ func (db *PostgresDB) GetTaskRunsCountForTaskName(ctx context.Context, name stri
 	return count, nil
 }
 
-func (db *PostgresDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blueberry.TaskRunLog, error) {
+func (db *PostgresDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]stypes.TaskRunLog, error) {
 	rows, err := db.conn.Query(ctx, "SELECT id, task_run_id, timestamp, level, message FROM task_run_logs WHERE task_run_id = $1", taskRunID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	for rows.Next() {
-		var taskRunLog blueberry.TaskRunLog
+		var taskRunLog stypes.TaskRunLog
 		if err := rows.Scan(&taskRunLog.ID, &taskRunLog.TaskRunID, &taskRunLog.Timestamp, &taskRunLog.Level, &taskRunLog.Message); err != nil {
 			return nil, err
 		}
@@ -139,7 +139,7 @@ func (db *PostgresDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blue
 	return taskRunLogs, nil
 }
 
-func (db *PostgresDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]blueberry.TaskRunLog, int, error) {
+func (db *PostgresDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]stypes.TaskRunLog, int, error) {
 	query := "SELECT id, task_run_id, timestamp, level, message FROM task_run_logs WHERE task_run_id = $1"
 	countQuery := "SELECT COUNT(*) FROM task_run_logs WHERE task_run_id = $1"
 	args := []interface{}{taskRunID}
@@ -160,9 +160,9 @@ func (db *PostgresDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int
 	}
 	defer rows.Close()
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	for rows.Next() {
-		var taskRunLog blueberry.TaskRunLog
+		var taskRunLog stypes.TaskRunLog
 		if err := rows.Scan(&taskRunLog.ID, &taskRunLog.TaskRunID, &taskRunLog.Timestamp, &taskRunLog.Level, &taskRunLog.Message); err != nil {
 			return nil, 0, err
 		}
@@ -176,15 +176,15 @@ func (db *PostgresDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int
 	}
 
 	if taskRunLogs == nil {
-		return []blueberry.TaskRunLog{}, totalCount, nil
+		return []stypes.TaskRunLog{}, totalCount, nil
 	}
 
 	return taskRunLogs, totalCount, nil
 }
 
-func (db *PostgresDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.TaskRun, error) {
+func (db *PostgresDB) GetTaskRunByID(ctx context.Context, id int) (*stypes.TaskRun, error) {
 	row := db.conn.QueryRow(ctx, "SELECT id, task_name, start_time, end_time, params, status FROM task_runs WHERE id = $1", id)
-	var taskRun blueberry.TaskRun
+	var taskRun stypes.TaskRun
 	var params []byte
 	if err := row.Scan(&taskRun.ID, &taskRun.TaskName, &taskRun.StartTime, &taskRun.EndTime, &params, &taskRun.Status); err != nil {
 		return nil, err

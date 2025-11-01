@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	blueberry "github.com/blueberry-go/scheduler/core"
+	stypes "github.com/blueberry-go/scheduler/types"
 )
 
 type Metadata struct {
@@ -76,7 +76,7 @@ func (db *FileStoreDB) saveMetadata() error {
 	return encoder.Encode(&db.metadata)
 }
 
-func (db *FileStoreDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRun) error {
+func (db *FileStoreDB) SaveTaskRun(ctx context.Context, taskRun *stypes.TaskRun) error {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -106,7 +106,7 @@ func (db *FileStoreDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskR
 	return db.saveMetadata()
 }
 
-func (db *FileStoreDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry.TaskRunLog) error {
+func (db *FileStoreDB) SaveTaskRunLog(ctx context.Context, taskRunLog *stypes.TaskRunLog) error {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -131,11 +131,11 @@ func (db *FileStoreDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry
 	return err
 }
 
-func (db *FileStoreDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, error) {
+func (db *FileStoreDB) GetTaskRuns(ctx context.Context) ([]stypes.TaskRun, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for taskName, ids := range db.metadata.TaskNameToIDs {
 		taskDir := filepath.Join(db.baseDir, taskName)
 		for _, id := range ids {
@@ -146,7 +146,7 @@ func (db *FileStoreDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, er
 			}
 			defer f.Close()
 
-			var taskRun blueberry.TaskRun
+			var taskRun stypes.TaskRun
 			decoder := json.NewDecoder(f)
 			if err := decoder.Decode(&taskRun); err != nil {
 				return nil, err
@@ -158,7 +158,7 @@ func (db *FileStoreDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, er
 	return taskRuns, nil
 }
 
-func (db *FileStoreDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.TaskRun, error) {
+func (db *FileStoreDB) GetTaskRunByID(ctx context.Context, id int) (*stypes.TaskRun, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -172,7 +172,7 @@ func (db *FileStoreDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.T
 				}
 				defer f.Close()
 
-				var taskRun blueberry.TaskRun
+				var taskRun stypes.TaskRun
 				decoder := json.NewDecoder(f)
 				if err := decoder.Decode(&taskRun); err != nil {
 					return nil, err
@@ -186,7 +186,7 @@ func (db *FileStoreDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.T
 	return nil, fmt.Errorf("task run with ID %d not found", id)
 }
 
-func (db *FileStoreDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blueberry.TaskRunLog, error) {
+func (db *FileStoreDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]stypes.TaskRunLog, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
@@ -197,10 +197,10 @@ func (db *FileStoreDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blu
 	}
 	defer f.Close()
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		var logEntry blueberry.TaskRunLog
+		var logEntry stypes.TaskRunLog
 		if err := json.Unmarshal(scanner.Bytes(), &logEntry); err != nil {
 			return nil, err
 		}
@@ -210,13 +210,13 @@ func (db *FileStoreDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blu
 	return taskRunLogs, scanner.Err()
 }
 
-func (db *FileStoreDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]blueberry.TaskRunLog, error) {
+func (db *FileStoreDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]stypes.TaskRunLog, error) {
 	allLogs, err := db.GetTaskRunLogs(ctx, taskRunID)
 	if err != nil {
 		return nil, err
 	}
 
-	var filteredLogs []blueberry.TaskRunLog
+	var filteredLogs []stypes.TaskRunLog
 	for _, log := range allLogs {
 		if level == "all" || log.Level == level {
 			filteredLogs = append(filteredLogs, log)
@@ -226,7 +226,7 @@ func (db *FileStoreDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID in
 	start := (page - 1) * size
 	end := start + size
 	if start > len(filteredLogs) {
-		return []blueberry.TaskRunLog{}, nil
+		return []stypes.TaskRunLog{}, nil
 	}
 	if end > len(filteredLogs) {
 		end = len(filteredLogs)
@@ -235,25 +235,25 @@ func (db *FileStoreDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID in
 	return filteredLogs[start:end], nil
 }
 
-func (db *FileStoreDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]blueberry.TaskRun, error) {
+func (db *FileStoreDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]stypes.TaskRun, error) {
 	db.mu.Lock()
 	defer db.mu.Unlock()
 
 	ids, exists := db.metadata.TaskNameToIDs[name]
 	if !exists {
-		return []blueberry.TaskRun{}, nil
+		return []stypes.TaskRun{}, nil
 	}
 
 	start := (page - 1) * limit
 	end := start + limit
 	if start > len(ids) {
-		return []blueberry.TaskRun{}, nil
+		return []stypes.TaskRun{}, nil
 	}
 	if end > len(ids) {
 		end = len(ids)
 	}
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for _, id := range ids[start:end] {
 		filePath := filepath.Join(db.baseDir, name, fmt.Sprintf("task_%d.json", id))
 		f, err := os.Open(filePath)
@@ -262,7 +262,7 @@ func (db *FileStoreDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name
 		}
 		defer f.Close()
 
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		decoder := json.NewDecoder(f)
 		if err := decoder.Decode(&taskRun); err != nil {
 			return nil, err

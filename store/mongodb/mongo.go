@@ -3,7 +3,7 @@ package store
 import (
 	"context"
 
-	blueberry "github.com/blueberry-go/scheduler/core"
+	stypes "github.com/blueberry-go/scheduler/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -114,7 +114,7 @@ func (db *MongoDB) GetNextSequence(ctx context.Context, name string) (int, error
 }
 
 // SaveTaskRun inserts a new task run document or updates an existing one.
-func (db *MongoDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRun) error {
+func (db *MongoDB) SaveTaskRun(ctx context.Context, taskRun *stypes.TaskRun) error {
 	if taskRun.ID == 0 {
 		nextID, err := db.GetNextSequence(ctx, "taskRunID")
 		if err != nil {
@@ -135,7 +135,7 @@ func (db *MongoDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRun) 
 }
 
 // SaveTaskRunLog inserts a new task run log document with auto-incremented ID.
-func (db *MongoDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry.TaskRunLog) error {
+func (db *MongoDB) SaveTaskRunLog(ctx context.Context, taskRunLog *stypes.TaskRunLog) error {
 	nextID, err := db.GetNextSequence(ctx, "taskRunLogID")
 	if err != nil {
 		return err
@@ -147,16 +147,16 @@ func (db *MongoDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry.Tas
 }
 
 // GetTaskRuns retrieves all task runs.
-func (db *MongoDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, error) {
+func (db *MongoDB) GetTaskRuns(ctx context.Context) ([]stypes.TaskRun, error) {
 	cursor, err := db.taskRuns.Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for cursor.Next(ctx) {
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		if err := cursor.Decode(&taskRun); err != nil {
 			return nil, err
 		}
@@ -166,7 +166,7 @@ func (db *MongoDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, error)
 }
 
 // GetPaginatedTaskRunsForTaskName retrieves task runs for a specific task, paginated and sorted by start time.
-func (db *MongoDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]blueberry.TaskRun, error) {
+func (db *MongoDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]stypes.TaskRun, error) {
 	skip := (page - 1) * limit
 	cursor, err := db.taskRuns.Find(ctx, bson.M{"taskname": name}, options.Find().SetSort(bson.M{"starttime": -1}).SetSkip(int64(skip)).SetLimit(int64(limit)))
 	if err != nil {
@@ -174,9 +174,9 @@ func (db *MongoDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name str
 	}
 	defer cursor.Close(ctx)
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for cursor.Next(ctx) {
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		if err := cursor.Decode(&taskRun); err != nil {
 			return nil, err
 		}
@@ -195,16 +195,16 @@ func (db *MongoDB) GetTaskRunsCountForTaskName(ctx context.Context, name string)
 }
 
 // GetTaskRunLogs retrieves all logs for a specific task run ID.
-func (db *MongoDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blueberry.TaskRunLog, error) {
+func (db *MongoDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]stypes.TaskRunLog, error) {
 	cursor, err := db.taskRunLogs.Find(ctx, bson.M{"taskrunid": taskRunID})
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	for cursor.Next(ctx) {
-		var taskRunLog blueberry.TaskRunLog
+		var taskRunLog stypes.TaskRunLog
 		if err := cursor.Decode(&taskRunLog); err != nil {
 			return nil, err
 		}
@@ -214,7 +214,7 @@ func (db *MongoDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blueber
 }
 
 // GetPaginatedTaskRunLogs retrieves paginated task run logs for a specific task run ID and level filter.
-func (db *MongoDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]blueberry.TaskRunLog, int, error) {
+func (db *MongoDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]stypes.TaskRunLog, int, error) {
 	filter := bson.M{"taskrunid": taskRunID}
 	if level != "all" {
 		filter["level"] = level
@@ -228,9 +228,9 @@ func (db *MongoDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, l
 	}
 	defer cursor.Close(ctx)
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	for cursor.Next(ctx) {
-		var taskRunLog blueberry.TaskRunLog
+		var taskRunLog stypes.TaskRunLog
 		if err := cursor.Decode(&taskRunLog); err != nil {
 			return nil, 0, err
 		}
@@ -246,9 +246,9 @@ func (db *MongoDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, l
 }
 
 // GetTaskRunByID retrieves a specific task run by ID.
-func (db *MongoDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.TaskRun, error) {
+func (db *MongoDB) GetTaskRunByID(ctx context.Context, id int) (*stypes.TaskRun, error) {
 	filter := bson.M{"id": id}
-	var taskRun blueberry.TaskRun
+	var taskRun stypes.TaskRun
 	err := db.taskRuns.FindOne(ctx, filter).Decode(&taskRun)
 	if err != nil {
 		return nil, err

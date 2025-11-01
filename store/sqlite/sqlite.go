@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	blueberry "github.com/blueberry-go/scheduler/core"
+	stypes "github.com/blueberry-go/scheduler/types"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -52,7 +52,7 @@ func (db *SQLiteDB) migrate() error {
 	return err
 }
 
-func (db *SQLiteDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRun) error {
+func (db *SQLiteDB) SaveTaskRun(ctx context.Context, taskRun *stypes.TaskRun) error {
 	params, _ := json.Marshal(taskRun.Params)
 	if taskRun.ID == 0 {
 		result, err := db.conn.ExecContext(ctx,
@@ -77,9 +77,9 @@ func (db *SQLiteDB) SaveTaskRun(ctx context.Context, taskRun *blueberry.TaskRun)
 	return nil
 }
 
-func (db *SQLiteDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.TaskRun, error) {
+func (db *SQLiteDB) GetTaskRunByID(ctx context.Context, id int) (*stypes.TaskRun, error) {
 	row := db.conn.QueryRowContext(ctx, "SELECT id, task_name, start_time, end_time, params, status FROM task_runs WHERE id = ?", id)
-	var taskRun blueberry.TaskRun
+	var taskRun stypes.TaskRun
 	var params []byte
 	if err := row.Scan(&taskRun.ID, &taskRun.TaskName, &taskRun.StartTime, &taskRun.EndTime, &params, &taskRun.Status); err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (db *SQLiteDB) GetTaskRunByID(ctx context.Context, id int) (*blueberry.Task
 	return &taskRun, nil
 }
 
-func (db *SQLiteDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry.TaskRunLog) error {
+func (db *SQLiteDB) SaveTaskRunLog(ctx context.Context, taskRunLog *stypes.TaskRunLog) error {
 	result, err := db.conn.ExecContext(ctx,
 		"INSERT INTO task_run_logs (task_run_id, timestamp, level, message) VALUES (?, ?, ?, ?)",
 		taskRunLog.TaskRunID, taskRunLog.Timestamp, taskRunLog.Level, taskRunLog.Message)
@@ -105,16 +105,16 @@ func (db *SQLiteDB) SaveTaskRunLog(ctx context.Context, taskRunLog *blueberry.Ta
 	return nil
 }
 
-func (db *SQLiteDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, error) {
+func (db *SQLiteDB) GetTaskRuns(ctx context.Context) ([]stypes.TaskRun, error) {
 	rows, err := db.conn.QueryContext(ctx, "SELECT id, task_name, start_time, end_time, params, status FROM task_runs ORDER BY start_time DESC")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for rows.Next() {
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		var params []byte
 		if err := rows.Scan(&taskRun.ID, &taskRun.TaskName, &taskRun.StartTime, &taskRun.EndTime, &params, &taskRun.Status); err != nil {
 			return nil, err
@@ -124,13 +124,13 @@ func (db *SQLiteDB) GetTaskRuns(ctx context.Context) ([]blueberry.TaskRun, error
 	}
 
 	if taskRuns == nil {
-		return []blueberry.TaskRun{}, nil
+		return []stypes.TaskRun{}, nil
 	}
 
 	return taskRuns, nil
 }
 
-func (db *SQLiteDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]blueberry.TaskRun, error) {
+func (db *SQLiteDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name string, page, limit int) ([]stypes.TaskRun, error) {
 	offset := (page - 1) * limit
 	rows, err := db.conn.QueryContext(ctx, "SELECT id, task_name, start_time, end_time, params, status FROM task_runs WHERE task_name = ? ORDER BY start_time DESC LIMIT ? OFFSET ?", name, limit, offset)
 	if err != nil {
@@ -138,9 +138,9 @@ func (db *SQLiteDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name st
 	}
 	defer rows.Close()
 
-	var taskRuns []blueberry.TaskRun
+	var taskRuns []stypes.TaskRun
 	for rows.Next() {
-		var taskRun blueberry.TaskRun
+		var taskRun stypes.TaskRun
 		var params []byte
 		if err := rows.Scan(&taskRun.ID, &taskRun.TaskName, &taskRun.StartTime, &taskRun.EndTime, &params, &taskRun.Status); err != nil {
 			return nil, err
@@ -150,7 +150,7 @@ func (db *SQLiteDB) GetPaginatedTaskRunsForTaskName(ctx context.Context, name st
 	}
 
 	if taskRuns == nil {
-		return []blueberry.TaskRun{}, nil
+		return []stypes.TaskRun{}, nil
 	}
 
 	return taskRuns, nil
@@ -165,16 +165,16 @@ func (db *SQLiteDB) GetTaskRunsCountForTaskName(ctx context.Context, name string
 	return count, nil
 }
 
-func (db *SQLiteDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]blueberry.TaskRunLog, error) {
+func (db *SQLiteDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]stypes.TaskRunLog, error) {
 	rows, err := db.conn.QueryContext(ctx, "SELECT id, task_run_id, timestamp, level, message FROM task_run_logs WHERE task_run_id = ?", taskRunID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	for rows.Next() {
-		var taskRunLog blueberry.TaskRunLog
+		var taskRunLog stypes.TaskRunLog
 		if err := rows.Scan(&taskRunLog.ID, &taskRunLog.TaskRunID, &taskRunLog.Timestamp, &taskRunLog.Level, &taskRunLog.Message); err != nil {
 			return nil, err
 		}
@@ -182,13 +182,13 @@ func (db *SQLiteDB) GetTaskRunLogs(ctx context.Context, taskRunID int) ([]bluebe
 	}
 
 	if taskRunLogs == nil {
-		return []blueberry.TaskRunLog{}, nil
+		return []stypes.TaskRunLog{}, nil
 	}
 
 	return taskRunLogs, nil
 }
 
-func (db *SQLiteDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]blueberry.TaskRunLog, int, error) {
+func (db *SQLiteDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, level string, page, size int) ([]stypes.TaskRunLog, int, error) {
 	query := "SELECT id, task_run_id, timestamp, level, message FROM task_run_logs WHERE task_run_id = ?"
 	countQuery := "SELECT COUNT(*) FROM task_run_logs WHERE task_run_id = ?"
 	args := []interface{}{taskRunID}
@@ -209,9 +209,9 @@ func (db *SQLiteDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, 
 	}
 	defer rows.Close()
 
-	var taskRunLogs []blueberry.TaskRunLog
+	var taskRunLogs []stypes.TaskRunLog
 	for rows.Next() {
-		var taskRunLog blueberry.TaskRunLog
+		var taskRunLog stypes.TaskRunLog
 		if err := rows.Scan(&taskRunLog.ID, &taskRunLog.TaskRunID, &taskRunLog.Timestamp, &taskRunLog.Level, &taskRunLog.Message); err != nil {
 			return nil, 0, err
 		}
@@ -225,7 +225,7 @@ func (db *SQLiteDB) GetPaginatedTaskRunLogs(ctx context.Context, taskRunID int, 
 	}
 
 	if taskRunLogs == nil {
-		return []blueberry.TaskRunLog{}, totalCount, nil
+		return []stypes.TaskRunLog{}, totalCount, nil
 	}
 
 	return taskRunLogs, totalCount, nil
