@@ -1,0 +1,49 @@
+site_name: Blueberry Scheduler Documentation
+site_url: https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/
+repo_url: https://github.com/Blueberry-Go/Scheduler.git
+repo_name: Github
+site_dir: ../site-build
+
+theme:
+  name: material
+  logo: assets/logo/logo_trans.png
+  favicon: assets/logo/logo_trans.png
+  features:
+    - content.tabs.link
+    - navigation.expand
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    # Enables the beautiful dark/light mode toggle
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/toggle-switch-outline
+        name: Switch to light mode
+extra_css:
+  - assets/extra.css
+
+nav:
+  - 'Welcome': 'index.md'
+  - 'Getting Started': 'getting-started.md'
+  - 'Guides':
+    - 'Defining Tasks': 'guides/defining-tasks.md'
+    - 'Managing Schedules': 'guides/managing-schedules.md'
+    - 'Authentication': 'guides/authentication.md'
+    - 'Database Setup': 'guides/database-setup.md'
+    - 'Graceful Shutdown': 'guides/graceful-shutdown.md'
+  - 'GUI Showcase': 'gui-showcase.md'
+  - 'Reference':
+    - 'Scheduling Syntax': 'reference/scheduling-syntax.md'
+    - 'REST API': 'reference/rest-api.md'
+    - 'Go API (Auto-generated)': 'reference/go-api.md'
+  - 'Examples': 'examples.md'

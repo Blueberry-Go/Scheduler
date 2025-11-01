@@ -1,3 +1,5 @@
 .idea
 *.db
 *.store
+venv
+public
