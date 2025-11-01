@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	stype "github.com/blueberry-go/scheduler/types"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -291,7 +292,7 @@ func (t *Task) ExecuteNow(params TaskParams) (int, error) {
 		return 0, err
 	}
 
-	taskRun := &TaskRun{
+	taskRun := &stype.TaskRun{
 		TaskName:  t.name,
 		StartTime: time.Now().UTC(),
 		Params:    params,
@@ -307,7 +308,7 @@ func (t *Task) ExecuteNow(params TaskParams) (int, error) {
 	tasksExecutingGauge.Inc()
 	execStart := time.Now() // Record start time for duration calculation
 
-	go func(taskRun *TaskRun, params TaskParams) {
+	go func(taskRun *stype.TaskRun, params TaskParams) {
 
 		defer func() {
 			tasksExecutingGauge.Dec()

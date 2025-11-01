@@ -5,16 +5,17 @@ import (
 	"fmt"
 	"time"
 
+	stype "github.com/blueberry-go/scheduler/types"
 	"github.com/labstack/gommon/log"
 )
 
 type Logger struct {
-	taskRun *TaskRun
+	taskRun *stype.TaskRun
 	db      DB
 }
 
 func (l *Logger) log(level, message string) error {
-	logEntry := &TaskRunLog{
+	logEntry := &stype.TaskRunLog{
 		TaskRunID: l.taskRun.ID,
 		Timestamp: time.Now().UTC(),
 		Level:     level,

@@ -3,6 +3,7 @@ module github.com/blueberry-go/scheduler/core
 go 1.22.3
 
 require (
+	github.com/blueberry-go/scheduler/types v0.6.3
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/prometheus/client_golang v1.21.1

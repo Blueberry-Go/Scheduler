@@ -1,4 +1,4 @@
-module github.com/blueberry-go/examples/sqlite
+module github.com/blueberry-go/scheduler/examples/sqlite
 
 go 1.22.3
 

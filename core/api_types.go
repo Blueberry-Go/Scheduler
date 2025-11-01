@@ -1,6 +1,10 @@
 package blueberry
 
-import "time"
+import (
+	"time"
+
+	stype "github.com/blueberry-go/scheduler/types"
+)
 
 // TaskExecution represents the execution details of a task
 type TaskExecution struct {
@@ -20,7 +24,7 @@ type TaskInfo struct {
 }
 
 type getTaskRunLogResponse struct {
-	Logs []TaskRunLog `json:"logs"`
+	Logs []stype.TaskRunLog `json:"logs"`
 }
 
 type getTaskExecutionsResponse struct {

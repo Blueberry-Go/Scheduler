@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	stype "github.com/blueberry-go/scheduler/types"
 	"github.com/labstack/echo/v4"
 )
 
@@ -176,7 +177,7 @@ func (r *BlueBerry) showExecution(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err)
 	}
 
-	var execution TaskRun
+	var execution stype.TaskRun
 	for _, exec := range executions {
 		if exec.ID == taskRunID {
 			execution = exec
@@ -211,8 +212,8 @@ func (r *BlueBerry) showExecution(c echo.Context) error {
 	totalPages := (totalLogs + size - 1) / size
 
 	data := struct {
-		TaskRun
-		Logs        []TaskRunLog
+		stype.TaskRun
+		Logs        []stype.TaskRunLog
 		CurrentPage int
 		PageSize    int
 		TotalPages  int
@@ -264,7 +265,7 @@ func (r *BlueBerry) downloadLogs(c echo.Context) error {
 }
 
 // logsToCSV converts logs to CSV format
-func logsToCSV(logs []TaskRunLog) ([]byte, error) {
+func logsToCSV(logs []stype.TaskRunLog) ([]byte, error) {
 	var buf bytes.Buffer
 	writer := csv.NewWriter(&buf)
 
