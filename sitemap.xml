@@ -2,50 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/examples/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/getting-started/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/gui-showcase/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/guides/authentication/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/guides/database-setup/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/guides/defining-tasks/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/guides/graceful-shutdown/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/guides/managing-schedules/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/reference/go-api/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/reference/rest-api/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
     </url>
     <url>
          <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/reference/scheduling-syntax/</loc>
-         <lastmod>2025-11-01</lastmod>
+         <lastmod>2025-11-04</lastmod>
+    </url>
+    <url>
+         <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/tutorial/dynamic-schedule/dynamic-scheduling/</loc>
+         <lastmod>2025-11-04</lastmod>
+    </url>
+    <url>
+         <loc>https://your-gitlab-namespace.gitlab.io/blueberry-scheduler/tutorial/dynamic-schedule/id-persistance/</loc>
+         <lastmod>2025-11-04</lastmod>
     </url>
 </urlset>
