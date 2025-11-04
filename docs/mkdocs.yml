@@ -30,6 +30,9 @@ theme:
         icon: material/toggle-switch-outline
         name: Switch to light mode
 
+extra_css:
+  - assets/extra.css
+
 nav:
   - 'Welcome': 'index.md'
   - 'Getting Started': 'getting-started.md'
@@ -44,8 +47,7 @@ nav:
     - 'Scheduling Syntax': 'reference/scheduling-syntax.md'
     - 'REST API': 'reference/rest-api.md'
     - 'Go API (Auto-generated)': 'reference/go-api.md'
-  - 'Tutorial':
-    - 'Dynamic Scheduling':
-      - 'Tutorial': 'tutorial/dynamic-schedule/dynamic-scheduling.md'
-      - 'Persistance': 'tutorial/dynamic-schedule/id-persistance.md'
+  - 'Dynamic Scheduling Tutorial':
+    - 'Tutorial': 'tutorial/dynamic-schedule/dynamic-scheduling.md'
+    - 'Persistance': 'tutorial/dynamic-schedule/id-persistance.md'
   - 'Examples': 'examples.md'
