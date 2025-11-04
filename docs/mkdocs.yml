@@ -29,8 +29,6 @@ theme:
       toggle:
         icon: material/toggle-switch-outline
         name: Switch to light mode
-extra_css:
-  - assets/extra.css
 
 nav:
   - 'Welcome': 'index.md'
