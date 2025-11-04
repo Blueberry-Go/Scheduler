@@ -1,5 +1,3 @@
-I'll create a comprehensive tutorial explaining how to extend BlueBerry with custom schedule management endpoints.
-
 # Tutorial: Extending BlueBerry with Custom Schedule Management
 
 ## Introduction
