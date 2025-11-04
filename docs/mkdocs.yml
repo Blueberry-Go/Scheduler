@@ -46,4 +46,8 @@ nav:
     - 'Scheduling Syntax': 'reference/scheduling-syntax.md'
     - 'REST API': 'reference/rest-api.md'
     - 'Go API (Auto-generated)': 'reference/go-api.md'
+  - 'Tutorial':
+    - 'Dynamic Scheduling':
+      - 'Tutorial': 'tutorial/dynamic-schedule/dynamic-scheduling.md'
+      - 'Persistance': 'tutorial/dynamic-schedule/id-persistance.md'
   - 'Examples': 'examples.md'
